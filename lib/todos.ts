@@ -5,7 +5,7 @@ export async function getTodos() {
     const todos = await prisma.todo.findMany()
     return { todos }
   } catch (error) {
-    return { error }
+    return { error: (error as Error).message || 'Failed to get todos.' }
   }
 }
 
@@ -34,6 +34,15 @@ export async function updateTodo(id: string, isCompleted: boolean) {
       data: { isCompleted }
     })
     return { todo }
+  } catch (error) {
+    return { error }
+  }
+}
+
+export async function deleteTodo(id: string) {
+  try {
+    const todo = await prisma.todo.delete({ where: { id } })
+    return todo
   } catch (error) {
     return { error }
   }

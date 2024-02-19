@@ -12,15 +12,18 @@ import { toast } from 'sonner'
 
 export default function TodoItem({ todo }: { todo: Todo }) {
   const [isPending, startTransition] = useTransition()
-  const [optimisticTodo, updateTodo] = useOptimistic(
-    todo,
-    (
-      todo,
-      { isCompleted, updatedAt }: { isCompleted: boolean; updatedAt: Date }
-    ) => {
-      return { ...todo, isCompleted, updatedAt }
+  type Reducer = (
+    todo: Todo,
+    data: { isCompleted: boolean; updatedAt: Date }
+  ) => Todo
+  const reducer: Reducer = (todo, { isCompleted, updatedAt }) => {
+    return {
+      ...todo,
+      isCompleted,
+      updatedAt
     }
-  )
+  }
+  const [optimisticTodo, updateTodo] = useOptimistic(todo, reducer)
 
   async function handleChange(isCompleted: boolean) {
     const updatedAt = new Date()

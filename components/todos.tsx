@@ -10,17 +10,20 @@ import { createTodoAction } from '@/app/actions'
 import { Input } from '@/components/ui/input'
 import TodoItem from '@/components/todo-item'
 import { Button } from '@/components/ui/button'
+import useOptimisticTodos from '@/app/optimistic-reducer'
 
-export default function Todos({ todos }: { todos: Todo[] }) {
+type Props = { todos: Todo[] }
+
+export default function Todos({ todos }: Props) {
   const formRef = useRef<HTMLFormElement>(null)
-  const [optimisticTodos, addOptimisticTodo] = useOptimistic(
-    todos,
-    (state, newTodo: Todo) => {
-      return [...state, newTodo]
-    }
-  )
 
-  async function action(data: FormData) {
+  type Reducer = (state: Todo[], newTodo: Todo) => Todo[]
+  const { optimisticTodos, optimisticAddTodo } = useOptimisticTodos()
+
+  const reducer: Reducer = (state, newTodo) => [...state, newTodo]
+  // const [optimisticTodos, addOptimisticTodo] = useOptimistic(todos, reducer)
+
+  async function submit(data: FormData) {
     const title = data.get('title')
     if (typeof title !== 'string' || !title) return
 
@@ -43,7 +46,7 @@ export default function Todos({ todos }: { todos: Todo[] }) {
 
   return (
     <div>
-      <form ref={formRef} action={action} className='flex'>
+      <form ref={formRef} action={submit} className='flex'>
         <Input type='text' name='title' placeholder='Add a new todo' />
         <SubmitButton />
       </form>
